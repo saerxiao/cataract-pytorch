@@ -20,9 +20,11 @@ class CnnModel(nn.Module):
       conv_relu(384, 256, 3, padding=1)
     )
     ## TODO: fill in the number of features according to the input
-    self.fu1 = nn.Linear(?, out_features)
-    #self.fu2 = nn.Linear(4096, 2048)
-    #self.fu3 = nn.Linear(2048, 1024)
+    ## input image 3x256x256, output from cnn is 256x14x14
+    ## input image 3x128x128, output from cnn is 256x6x6
+    self.fc1 = nn.Linear(50176, out_features)
+    #self.fc2 = nn.Linear(4096, 2048)
+    #self.fc3 = nn.Linear(2048, 1024)
 
   def forward(self, x):
     x = self.cnn(x)
@@ -43,8 +45,10 @@ class Regressor(nn.Module):
   
   def __init__(self, in_features):
     super(Regressor, self).__init__()    
-    self.fu1 = nn.Linear(in_features, 1)
+    self.fc1 = nn.Linear(in_features, 1)
 
   def forward(self, x):
-    x = self.fu1(x)
+    x = x.permute(1, 0, 2)
+    x = x.contiguous().view(x.size(0), -1)
+    x = self.fc1(x)
     return x
